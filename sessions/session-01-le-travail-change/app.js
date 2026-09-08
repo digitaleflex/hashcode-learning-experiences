@@ -11,15 +11,34 @@ const slides=[
 ];
 let currentSlide=0,startTime=Date.now();
 const presentation=document.getElementById("presentation"),progressBar=document.getElementById("progress-bar");
-document.body.insertAdjacentHTML("beforeend",`<aside class="presenter-panel"><h2>Vue présentateur</h2><div class="timer" id="timer">00:00</div><h3 id="slide-title"></h3><p><strong>Objectif</strong><br><span id="objective"></span></p><p><strong>Script</strong><br><span id="script"></span></p><p><strong>Interaction</strong><br><span id="interaction"></span></p><p><strong>Transition</strong><br><span id="transition"></span></p><p>Raccourcis : ← → · P · F · R</p></aside>`);
+document.body.insertAdjacentHTML("beforeend",`<aside class="presenter-panel"><div class="presenter-top"><span class="presenter-label">HASHCODE</span><span class="presenter-private">PRIVÉ</span></div><h2>Vue présentateur</h2><div class="timer" id="timer">00:00</div><h3 id="slide-title"></h3><p><strong>Objectif</strong><br><span id="objective"></span></p><p><strong>Script</strong><br><span id="script"></span></p><p><strong>Interaction</strong><br><span id="interaction"></span></p><p><strong>Transition</strong><br><span id="transition"></span></p><div class="presenter-actions"><button class="presenter-prev">← Précédente</button><button class="presenter-next">Suivante →</button></div><p class="presenter-shortcuts">← → navigation · R chronomètre · fermer cette fenêtre pour revenir au mode public</p></aside>`);
 function renderSlides(){const s=slides[currentSlide];presentation.innerHTML=slides.map((slide,index)=>`<section class="slide ${slide.background?"has-background":""} ${index===currentSlide?"active":""}" style="${slide.background?`--slide-bg:url(${slide.background})`:""}">${slide.brand?`<div class="brand">${slide.brand}</div>`:""}${slide.kicker?`<div class="kicker">${slide.kicker}</div>`:""}${slide.headline?`<h1 class="headline">${slide.headline}</h1>`:""}${slide.subheadline?`<div class="subheadline">${slide.subheadline}</div>`:""}</section>`).join("");progressBar.style.width=`${((currentSlide+1)/slides.length)*100}%`;document.getElementById("slide-title").textContent=`SLIDE ${currentSlide+1}/${slides.length} · cible ${s.time}`;document.getElementById("objective").textContent=s.objective;document.getElementById("script").textContent=s.script;document.getElementById("interaction").textContent=s.interaction;document.getElementById("transition").textContent=s.transition}
 function nextSlide(){if(currentSlide<slides.length-1){currentSlide++;renderSlides()}}function previousSlide(){if(currentSlide>0){currentSlide--;renderSlides()}}
 function openPresenter(){const url=new URL(window.location.href);url.searchParams.set("presenter","1");const w=window.open(url.toString(),"hashcode-presenter","popup=yes,width=900,height=900");if(!w){alert("Autorise les fenêtres contextuelles pour ouvrir la vue présentateur.")}}
 const isPresenter=new URLSearchParams(window.location.search).get("presenter")==="1";
-if(isPresenter){document.body.classList.add("presenter-window");document.getElementById("presentation").style.display="none";document.getElementById("progress").style.display="none";document.getElementById("controls-hint").textContent="Vue privée · ← → synchronisation · R chronomètre";}
+if(isPresenter){
+document.body.classList.add("presenter-window");
+document.getElementById("presentation").style.display="none";
+document.getElementById("progress").style.display="none";
+document.getElementById("controls-hint").textContent="Vue privée · synchronisée avec la présentation";
+document.body.classList.add("presenter-mode");
+}
+function presenterNavigate(delta){
+if(!isPresenter)return;
+currentSlide=Math.max(0,Math.min(slides.length-1,currentSlide+delta));
+renderSlides();
+broadcast();
+}
+document.addEventListener("click",e=>{
+if(!isPresenter)return;
+const panel=document.querySelector(".presenter-panel");
+if(e.target.closest(".presenter-next"))presenterNavigate(1);
+if(e.target.closest(".presenter-prev"))presenterNavigate(-1);
+});
+
 function broadcast(){localStorage.setItem("hashcode-session-01-slide",JSON.stringify({index:currentSlide,ts:Date.now()}))}
 function syncFromStorage(){const raw=localStorage.getItem("hashcode-session-01-slide");if(!raw)return;const data=JSON.parse(raw);if(data.index!==currentSlide){currentSlide=data.index;renderSlides()}}
 window.addEventListener("storage",e=>{if(e.key==="hashcode-session-01-slide"&&isPresenter)syncFromStorage()});
 const originalRender=renderSlides;renderSlides=function(){originalRender();if(!isPresenter)broadcast()};
-document.addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key===" "){e.preventDefault();nextSlide()}if(e.key==="ArrowLeft"){previousSlide()}if(e.key.toLowerCase()==="p"&&!isPresenter){openPresenter()}if(e.key.toLowerCase()==="f"&&!isPresenter){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}if(e.key.toLowerCase()==="r"){startTime=Date.now()}});
+document.addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key===" "){e.preventDefault();isPresenter?presenterNavigate(1):nextSlide()}if(e.key==="ArrowLeft"){isPresenter?presenterNavigate(-1):previousSlide()}if(e.key.toLowerCase()==="p"&&!isPresenter){openPresenter()}if(e.key.toLowerCase()==="f"&&!isPresenter){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}if(e.key.toLowerCase()==="r"){startTime=Date.now()}});
 renderSlides();
