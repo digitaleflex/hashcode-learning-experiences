@@ -1,2 +1,20 @@
 import Link from "next/link";
-export default function Home(){return <main style={{minHeight:"100vh",display:"grid",placeItems:"center",padding:24}}><section style={{maxWidth:720}}><p style={{color:"#c5f441",fontWeight:800,letterSpacing:"0.15em"}}>HASHCODE</p><h1 style={{fontSize:"clamp(3rem,10vw,7rem)",lineHeight:.9,margin:"16px 0"}}>LEARNING<br/>EXPERIENCES.</h1><p style={{color:"#9aa39a",fontSize:"1.2rem"}}>Des expériences d'apprentissage interactives, en direct et connectées.</p><p><Link href="/sessions/session-01-le-travail-change">→ Ouvrir Session 01</Link></p></section></main>}
+
+export default function Home() {
+  return (
+    <main className="session">
+      <div>
+        <div className="session-brand">HASHCODE SESSIONS</div>
+        <h1>DES SESSIONS QUI SE <span>VIVENT.</span></h1>
+        <p>
+          Une plateforme interactive pour les sessions, ateliers, masterclasses
+          et expériences technologiques de la communauté HashCode.
+        </p>
+        <div className="actions">
+          <Link className="primary" href="/s/session-01">OUVRIR SESSION 01</Link>
+          <Link className="secondary" href="/admin/login">ADMINISTRATION</Link>
+        </div>
+      </div>
+    </main>
+  );
+}
