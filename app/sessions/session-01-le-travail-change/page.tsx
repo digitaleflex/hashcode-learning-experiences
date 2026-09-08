@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function Session01(){return <main className="session"><div className="session-brand">HASHCODE · SESSION 01</div><h1>LE TRAVAIL <span>CHANGE.</span></h1><p>De l'utilisateur d'IA à l'architecte d'un système intelligent.</p><div className="actions"><Link className="primary" href="/join/session-01">REJOINDRE LA SESSION</Link><Link className="secondary" href="/presenter/session-01">VUE PRÉSENTATEUR</Link></div><p className="notice">La présentation existante est conservée pendant sa migration vers les composants Next.js.</p></main>
