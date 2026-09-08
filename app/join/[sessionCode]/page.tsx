@@ -1,0 +1,4 @@
+"use client";
+import { useParams,useRouter } from "next/navigation";
+import { useState } from "react";
+export default function Join(){const params=useParams<{sessionCode:string}>();const router=useRouter();const [name,setName]=useState("");function submit(e:React.FormEvent){e.preventDefault();const n=name.trim();if(!n)return;localStorage.setItem("hashcode-participant",JSON.stringify({displayName:n,sessionCode:params.sessionCode,joinedAt:new Date().toISOString()}));router.push("/live/"+params.sessionCode)}return <main className="join"><section className="card"><div className="brand">HASHCODE LIVE</div><p className="kicker">SESSION EN DIRECT</p><h1>VOUS N'ÊTES PAS ICI POUR REGARDER.</h1><p className="muted">Vous êtes ici pour participer.</p><form onSubmit={submit}><input value={name} onChange={e=>setName(e.target.value)} maxLength={40} placeholder="Comment dois-je t'appeler ?" autoFocus/><button>REJOINDRE LA SESSION</button></form></section></main>}
